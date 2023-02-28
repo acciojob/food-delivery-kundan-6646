@@ -18,7 +18,7 @@ import java.util.List;
 public class FoodServiceImpl {
     @Autowired
     FoodService foodService;
-    public FoodDetailsResponse getFood(String id) throws Exception{
+    public FoodDetailsResponse getFoodById(String id) throws Exception{
         FoodDto food = foodService.getFoodById(id);
         return getFoodResponseDTO(food);
     }

@@ -25,7 +25,7 @@ public class FoodController {
 
 	@GetMapping(path="/{id}")
 	public FoodDetailsResponse getFood(@PathVariable String id) throws Exception{
-		return foodService.getFood(id);
+		return foodService.getFoodById(id);
 	}
 
 	@PostMapping("/create")

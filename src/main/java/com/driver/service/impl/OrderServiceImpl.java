@@ -29,7 +29,7 @@ public class OrderServiceImpl {
         return orderDetailsResponse;
     }
 
-    public OrderDetailsResponse getOrder(String id) throws Exception{
+    public OrderDetailsResponse getOrderById(String id) throws Exception{
         OrderDto orderDto = orderService.getOrderById(id);
         return getOrderResponse(orderDto);
     }
@@ -45,7 +45,7 @@ public class OrderServiceImpl {
         return getOrderResponse(orderDto);
     }
 
-    public OrderDetailsResponse updateOrder(String id, OrderDetailsRequestModel order) throws Exception{
+    public OrderDetailsResponse updateOrderDetails(String id, OrderDetailsRequestModel order) throws Exception{
         OrderDto orderDto = orderService.getOrderById(id);
         orderDto.setItems(order.getItems());
         orderDto.setCost(order.getCost());

@@ -28,7 +28,7 @@ public class UserServiceImpl {
     }
 
     @GetMapping(path = "/{id}")
-    public UserResponse getUser(@PathVariable String id) throws Exception{
+    public UserResponse getUserByUserId(@PathVariable String id) throws Exception{
         UserDto userDto = userService.getUserByUserId(id);
 
         return getUserResponse(userDto);

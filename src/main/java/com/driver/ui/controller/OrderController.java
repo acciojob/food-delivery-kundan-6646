@@ -25,7 +25,7 @@ public class OrderController {
 
 	@GetMapping(path="/{id}")
 	public OrderDetailsResponse getOrder(@PathVariable String id) throws Exception{
-		return orderService.getOrder(id);
+		return orderService.getOrderById(id);
 	}
 	
 	@PostMapping()
@@ -35,7 +35,7 @@ public class OrderController {
 		
 	@PutMapping(path="/{id}")
 	public OrderDetailsResponse updateOrder(@PathVariable String id, @RequestBody OrderDetailsRequestModel order) throws Exception{
-		return orderService.updateOrder(id, order);
+		return orderService.updateOrderDetails(id, order);
 	}
 	
 	@DeleteMapping(path = "/{id}")

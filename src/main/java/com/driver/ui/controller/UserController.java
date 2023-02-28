@@ -25,7 +25,7 @@ public class UserController {
 
 	@GetMapping(path = "/{id}")
 	public UserResponse getUser(@PathVariable String id) throws Exception{
-		return userService.getUser(id);
+		return userService.getUserByUserId(id);
 	}
 
 	@PostMapping()
