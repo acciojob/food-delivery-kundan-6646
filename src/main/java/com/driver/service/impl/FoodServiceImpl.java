@@ -34,7 +34,7 @@ public class FoodServiceImpl {
         return getFoodResponseDTO(foodDto);
     }
 
-    public FoodDetailsResponse updateFood(String id, FoodDetailsRequestModel foodDetails) throws Exception{
+    public FoodDetailsResponse updateFoodDetails(String id, FoodDetailsRequestModel foodDetails) throws Exception{
         FoodDto foodDto = foodService.getFoodById(id);
         foodDto.setFoodCategory(foodDetails.getFoodCategory());
         foodDto.setFoodName(foodDetails.getFoodName());
@@ -45,7 +45,7 @@ public class FoodServiceImpl {
         return getFoodResponseDTO(foodDto);
     }
 
-    public OperationStatusModel deleteFood(String id) throws Exception{
+    public OperationStatusModel deleteFoodItem(String id) throws Exception{
         foodService.deleteFoodItem(id);
         return new OperationStatusModel();
     }

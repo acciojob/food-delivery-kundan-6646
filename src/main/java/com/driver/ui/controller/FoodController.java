@@ -35,12 +35,12 @@ public class FoodController {
 
 	@PutMapping(path="/{id}")
 	public FoodDetailsResponse updateFood(@PathVariable String id, @RequestBody FoodDetailsRequestModel foodDetails) throws Exception{
-		return foodService.updateFood(id, foodDetails);
+		return foodService.updateFoodDetails(id, foodDetails);
 	}
 
 	@DeleteMapping(path = "/{id}")
 	public OperationStatusModel deleteFood(@PathVariable String id) throws Exception{
-		return foodService.deleteFood(id);
+		return foodService.deleteFoodItem(id);
 	}
 	
 	@GetMapping()

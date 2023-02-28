@@ -27,15 +27,14 @@ public class UserServiceImpl {
         return userResponse;
     }
 
-    @GetMapping(path = "/{id}")
-    public UserResponse getUserByUserId(@PathVariable String id) throws Exception{
+
+    public UserResponse getUserByUserId(String id) throws Exception{
         UserDto userDto = userService.getUserByUserId(id);
 
         return getUserResponse(userDto);
     }
 
-    @PostMapping()
-    public UserResponse createUser(@RequestBody UserDetailsRequestModel userDetails) throws Exception{
+    public UserResponse createUser(UserDetailsRequestModel userDetails) throws Exception{
         UserDto userDto = new UserDto();
         userDto.setFirstName(userDetails.getFirstName());
         userDto.setLastName(userDetails.getLastName());
@@ -46,8 +45,8 @@ public class UserServiceImpl {
         return getUserResponse(userDto);
     }
 
-    @PutMapping(path = "/{id}")
-    public UserResponse updateUser(@PathVariable String id, @RequestBody UserDetailsRequestModel userDetails) throws Exception{
+
+    public UserResponse updateUser(String id, UserDetailsRequestModel userDetails) throws Exception{
         UserDto userDto = userService.getUserByUserId(id);
         userDto.setEmail(userDetails.getEmail());
         userDto.setFirstName(userDetails.getFirstName());
@@ -58,13 +57,12 @@ public class UserServiceImpl {
         return getUserResponse(userDto);
     }
 
-    @DeleteMapping(path = "/{id}")
-    public OperationStatusModel deleteUser(@PathVariable String id) throws Exception{
+    public OperationStatusModel deleteUser(String id) throws Exception{
         userService.deleteUser(id);
         return new OperationStatusModel();
     }
 
-    @GetMapping()
+
     public List<UserResponse> getUsers(){
         List<UserDto>userDtoList = userService.getUsers();
         List<UserResponse> userResponses = new ArrayList<>();
