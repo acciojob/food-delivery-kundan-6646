@@ -1,7 +1,7 @@
 package com.driver.service.impl;
-
-import com.driver.io.entity.UserEntity;
+import java.util.UUID;
 import com.driver.io.repository.UserRepository;
+import com.driver.io.entity.UserEntity;
 import com.driver.model.request.UserDetailsRequestModel;
 import com.driver.model.response.OperationStatusModel;
 import com.driver.model.response.RequestOperationName;
@@ -11,25 +11,24 @@ import com.driver.service.UserService;
 import com.driver.shared.dto.UserDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Service
-public class UserServiceImpl implements UserService{
-
+public class UserServiceImpl implements UserService {
     @Autowired
     UserRepository userRepository;
 
     @Override
     public UserDto createUser(UserDto user) throws Exception {
         UserEntity userEntity = new UserEntity();
+
+        String str = usingRandomUUID();
         userEntity.setEmail(user.getEmail());
         userEntity.setFirstName(user.getFirstName());
         userEntity.setLastName(user.getLastName());
-        userEntity.setUserId(UUID.randomUUID().toString());
+        userEntity.setUserId(str);
 
         userRepository.save(userEntity);
 
@@ -43,7 +42,7 @@ public class UserServiceImpl implements UserService{
     public UserDto getUser(String email) throws Exception {
         UserEntity userEntity = userRepository.findByEmail(email);
 
-        UserDto userDto= new UserDto();
+        UserDto userDto = new UserDto();
         userDto.setId(userEntity.getId());
         userDto.setUserId(userEntity.getUserId());
         userDto.setEmail(userEntity.getEmail());
@@ -55,9 +54,10 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public UserDto getUserByUserId(String userId) throws Exception {
+
         UserEntity userEntity = userRepository.findByUserId(userId);
 
-        UserDto userDto= new UserDto();
+        UserDto userDto = new UserDto();
         userDto.setId(userEntity.getId());
         userDto.setUserId(userEntity.getUserId());
         userDto.setEmail(userEntity.getEmail());
@@ -65,12 +65,12 @@ public class UserServiceImpl implements UserService{
         userDto.setLastName(userEntity.getLastName());
 
         return userDto;
+
     }
 
     @Override
     public UserDto updateUser(String userId, UserDto user) throws Exception {
         UserEntity userEntity = userRepository.findByUserId(userId);
-
         userEntity.setFirstName(user.getFirstName());
         userEntity.setLastName(user.getLastName());
         userEntity.setEmail(user.getEmail());
@@ -79,6 +79,7 @@ public class UserServiceImpl implements UserService{
         user.setUserId(userEntity.getUserId());
         user.setId(userEntity.getId());
         return user;
+
     }
 
     @Override
@@ -89,9 +90,9 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public List<UserDto> getUsers() {
-        List<UserEntity> userEntities = (List<UserEntity>) userRepository.findAll();
+        List<UserEntity> list = (List<UserEntity>) userRepository.findAll();
         List<UserDto> userDtoList = new ArrayList<>();
-        for(UserEntity u : userEntities){
+        for(UserEntity u : list){
             UserDto userDto = new UserDto();
             userDto.setId(u.getId());
             userDto.setUserId(u.getUserId());
@@ -104,19 +105,39 @@ public class UserServiceImpl implements UserService{
         }
         return userDtoList;
     }
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    public UserResponse createUser(UserDetailsRequestModel userDetails) throws Exception{
+    //===============================================
+    //CONVERTOR (Here below we are having some functions which will do conversions)
+    //===============================================
+    public UserResponse createUser(UserDetailsRequestModel userDetails) throws Exception {
+        //---------------------------------
+        //Let's convert this received 'userDetails' into UserDto
+        //---------------------------------
+
         UserDto userDto = new UserDto();
         userDto.setFirstName(userDetails.getFirstName());
         userDto.setLastName(userDetails.getLastName());
         userDto.setEmail(userDetails.getEmail());
 
+
+        //---------------------------------
         UserDto finalUserDto = createUser(userDto);
 
-        return getUserResponse(finalUserDto);
+        //===============================================
+        /*Now we will convert this finalUserDto into userResponse and return it*/
+
+        UserResponse userResponse = new UserResponse();
+
+        userResponse.setUserId(finalUserDto.getUserId());
+        userResponse.setEmail(finalUserDto.getEmail());
+        userResponse.setFirstName(finalUserDto.getFirstName());
+        userResponse.setLastName(finalUserDto.getLastName());
+
+        return userResponse;
     }
 
-    public UserResponse getUser_id(String id) throws Exception{
+    public UserResponse getUser_id(String id) throws Exception {
         UserDto userDto;
         if(id.contains(".com")){
             userDto = getUser(id);
@@ -125,10 +146,24 @@ public class UserServiceImpl implements UserService{
             userDto = getUserByUserId(id);
         }
 
-        return getUserResponse(userDto);
+        //------------------------------
+        //Now we will convert this above userDto into userResponse
+        //------------------------------
+
+        UserResponse userResponse = new UserResponse();
+        userResponse.setUserId(userDto.getUserId());
+        userResponse.setEmail(userDto.getEmail());
+        userResponse.setFirstName(userDto.getFirstName());
+        userResponse.setLastName(userDto.getLastName());
+
+        return userResponse;
     }
 
-    public UserResponse updateUser(String id, UserDetailsRequestModel userDetails) throws Exception{
+    public UserResponse updateUser(String id, UserDetailsRequestModel userDetails) throws Exception {
+        //--------------------
+        //Now we will convert 'userDetails' into 'UserDto'
+        //--------------------
+
         UserDto userDto = new UserDto();
         userDto.setFirstName(userDetails.getFirstName());
         userDto.setLastName(userDetails.getLastName());
@@ -138,10 +173,16 @@ public class UserServiceImpl implements UserService{
 
         UserDto finalUserDto = updateUser(userId,userDto);
 
-        return getUserResponse(finalUserDto);
+        UserResponse userResponse = new UserResponse();
+        userResponse.setUserId(finalUserDto.getUserId());
+        userResponse.setEmail(finalUserDto.getEmail());
+        userResponse.setFirstName(finalUserDto.getFirstName());
+        userResponse.setLastName(finalUserDto.getLastName());
+
+        return userResponse;
     }
 
-    public OperationStatusModel delete_User(String id) throws Exception{
+    public OperationStatusModel delete_User(String id) throws Exception {
         OperationStatusModel operationStatusModel = new OperationStatusModel();
         operationStatusModel.setOperationName(RequestOperationName.DELETE.toString());
         try {
@@ -155,22 +196,29 @@ public class UserServiceImpl implements UserService{
     }
 
     public List<UserResponse> get_Users(){
-        List<UserDto> userEntities = getUsers();
-        List<UserResponse> userResponses = new ArrayList<>();
-        for (UserDto userDto: userEntities) {
-            userResponses.add(getUserResponse(userDto));
+        List<UserDto> userDtoList = getUsers();
+        List<UserResponse> userResponseList = new ArrayList<>();
+        for(UserDto u : userDtoList){
+            UserResponse userResponse = new UserResponse();
+            userResponse.setLastName(u.getLastName());
+            userResponse.setFirstName(u.getFirstName());
+            userResponse.setEmail(u.getEmail());
+            userResponse.setUserId(u.getUserId());
+            userResponseList.add(userResponse);
         }
-
-        return userResponses;
+        return userResponseList;
     }
 
-    private UserResponse getUserResponse(UserDto userDto) {
-        UserResponse userResponse = new UserResponse();
-        userResponse.setUserId(userDto.getUserId());
-        userResponse.setEmail(userDto.getEmail());
-        userResponse.setFirstName(userDto.getFirstName());
-        userResponse.setLastName(userDto.getLastName());
+    static String usingRandomUUID() {
 
-        return userResponse;
+        UUID randomUUID = UUID.randomUUID();
+
+        return randomUUID.toString().replaceAll("_", "");
+
     }
+
+
+
+
+
 }

@@ -1,7 +1,7 @@
 package com.driver.service.impl;
 
-import com.driver.io.entity.OrderEntity;
 import com.driver.io.repository.OrderRepository;
+import com.driver.io.entity.OrderEntity;
 import com.driver.model.request.OrderDetailsRequestModel;
 import com.driver.model.response.OperationStatusModel;
 import com.driver.model.response.OrderDetailsResponse;
@@ -11,14 +11,12 @@ import com.driver.service.OrderService;
 import com.driver.shared.dto.OrderDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class OrderServiceImpl implements OrderService{
+public class OrderServiceImpl implements OrderService {
 
     @Autowired
     OrderRepository orderRepository;
@@ -48,6 +46,7 @@ public class OrderServiceImpl implements OrderService{
         orderDto.setCost(orderEntity.getCost());
         orderDto.setItems(orderEntity.getItems());
         return orderDto;
+
     }
 
     @Override
@@ -88,6 +87,10 @@ public class OrderServiceImpl implements OrderService{
         return orderDtoList;
     }
 
+    //===============================================
+    //CONVERTOR (Here below we are having some functions which will do conversions)
+    //===============================================
+
     public OrderDetailsResponse createOrder(OrderDetailsRequestModel order){
 
         OrderDto orderDto = new OrderDto();
@@ -97,16 +100,39 @@ public class OrderServiceImpl implements OrderService{
 
         OrderDto finalOrderDto = createOrder(orderDto);
 
-        return getOrderResponse(finalOrderDto);
+        //---------------------------------
+        //Converting finalOrderDto into OrderDetailsResponse
+        //---------------------------------
+
+        OrderDetailsResponse orderDetailsResponse = new OrderDetailsResponse();
+        orderDetailsResponse.setOrderId(finalOrderDto.getOrderId());
+        orderDetailsResponse.setCost(finalOrderDto.getCost());
+        orderDetailsResponse.setItems(finalOrderDto.getItems());
+        orderDetailsResponse.setUserId(finalOrderDto.getUserId());
+        orderDetailsResponse.setStatus(finalOrderDto.isStatus());
+
+        return orderDetailsResponse;
+
     }
 
     public OrderDetailsResponse getOrder(String id) throws Exception {
         OrderDto orderDto = getOrderById(id);
 
-        return getOrderResponse(orderDto);
+        OrderDetailsResponse orderDetailsResponse = new OrderDetailsResponse();
+        orderDetailsResponse.setOrderId(orderDto.getOrderId());
+        orderDetailsResponse.setCost(orderDto.getCost());
+        orderDetailsResponse.setItems(orderDto.getItems());
+        orderDetailsResponse.setUserId(orderDto.getUserId());
+        orderDetailsResponse.setStatus(orderDto.isStatus());
+
+        return orderDetailsResponse;
     }
 
     public OrderDetailsResponse updateOrder(String id, OrderDetailsRequestModel order) throws Exception {
+
+        //---------------------------
+        //We will convert 'order' (OrderDetailsRequestModel) into orderDto here
+        //---------------------------
 
         OrderDto orderDto = new OrderDto();
         orderDto.setUserId(order.getUserId());
@@ -115,7 +141,20 @@ public class OrderServiceImpl implements OrderService{
 
         OrderDto finalOrderDto = updateOrderDetails(id,orderDto);
 
-        return getOrderResponse(orderDto);
+        //---------------------------
+        //We will convert this finalOrderDto into OrderDetailsResponse
+        //---------------------------
+
+        OrderDetailsResponse orderDetailsResponse = new OrderDetailsResponse();
+        orderDetailsResponse.setOrderId(finalOrderDto.getOrderId());
+        orderDetailsResponse.setUserId(finalOrderDto.getUserId());
+        orderDetailsResponse.setStatus(finalOrderDto.isStatus());
+        orderDetailsResponse.setItems(finalOrderDto.getItems());
+        orderDetailsResponse.setCost(finalOrderDto.getCost());
+
+        return orderDetailsResponse;
+
+
     }
 
     public OperationStatusModel delete_Order(String id){
@@ -135,19 +174,19 @@ public class OrderServiceImpl implements OrderService{
         List<OrderDto> orderDtoList = getOrders();
         List<OrderDetailsResponse> orderDetailsResponseList = new ArrayList<>();
         for(OrderDto o : orderDtoList){
-             orderDetailsResponseList.add(getOrderResponse(o));
+            OrderDetailsResponse orderDetailsResponse = new OrderDetailsResponse();
+            orderDetailsResponse.setUserId(o.getUserId());
+            orderDetailsResponse.setStatus(o.isStatus());
+            orderDetailsResponse.setCost(o.getCost());
+            orderDetailsResponse.setItems(o.getItems());
+            orderDetailsResponse.setUserId(o.getUserId());
+            orderDetailsResponseList.add(orderDetailsResponse);
         }
         return orderDetailsResponseList;
     }
 
-    private OrderDetailsResponse getOrderResponse(OrderDto order) {
-        OrderDetailsResponse orderDetailsResponse = new OrderDetailsResponse();
-        orderDetailsResponse.setOrderId(order.getOrderId());
-        orderDetailsResponse.setCost(order.getCost());
-        orderDetailsResponse.setItems(order.getItems());
-        orderDetailsResponse.setStatus(order.isStatus());
-        orderDetailsResponse.setUserId(order.getUserId());
 
-        return orderDetailsResponse;
-    }
+
+
+
 }

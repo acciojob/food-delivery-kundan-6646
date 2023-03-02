@@ -1,8 +1,7 @@
 package com.driver.service.impl;
 
-
-import com.driver.io.entity.FoodEntity;
 import com.driver.io.repository.FoodRepository;
+import com.driver.io.entity.FoodEntity;
 import com.driver.model.request.FoodDetailsRequestModel;
 import com.driver.model.response.FoodDetailsResponse;
 import com.driver.model.response.OperationStatusModel;
@@ -12,28 +11,30 @@ import com.driver.service.FoodService;
 import com.driver.shared.dto.FoodDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 @Service
-public class FoodServiceImpl implements FoodService {
+public class FoodServiceImpl implements FoodService{
+
     @Autowired
     FoodRepository foodRepository;
-
 
     @Override
     public FoodDto createFood(FoodDto food) {
         FoodEntity foodEntity = new FoodEntity();
         foodEntity.setFoodCategory(food.getFoodCategory());
-        foodEntity.setFoodName(food.getFoodName());
+        String str = usingRandomUUID();
+        foodEntity.setFoodId(str);
         foodEntity.setFoodPrice(food.getFoodPrice());
-        foodEntity.setFoodId(UUID.randomUUID().toString());
+        foodEntity.setFoodName(food.getFoodName());
 
         foodRepository.save(foodEntity);
+        food.setFoodId(str);
         food.setId(foodRepository.findByFoodId(food.getFoodId()).getId());
+
         return food;
     }
 
@@ -52,11 +53,10 @@ public class FoodServiceImpl implements FoodService {
     @Override
     public FoodDto updateFoodDetails(String foodId, FoodDto foodDetails) throws Exception {
         FoodEntity foodEntity = foodRepository.findByFoodId(foodId);
-        foodEntity.setFoodCategory(foodDetails.getFoodCategory());
-        foodEntity.setFoodName(foodDetails.getFoodName());
-        foodEntity.setFoodPrice(foodDetails.getFoodPrice());
         foodEntity.setFoodId(foodDetails.getFoodId());
-
+        foodEntity.setFoodName(foodDetails.getFoodName());
+        foodEntity.setFoodCategory(foodDetails.getFoodCategory());
+        foodEntity.setFoodPrice(foodDetails.getFoodPrice());
         foodRepository.save(foodEntity);
 
         foodDetails.setFoodId(foodId);
@@ -87,16 +87,14 @@ public class FoodServiceImpl implements FoodService {
         }
 
         return foodDtoList;
+
     }
 
+    //===============================================
+    //CONVERTOR (Here below we are having some functions which will do conversions)
+    //===============================================
 
-    public FoodDetailsResponse get_Food(String id) throws Exception{
-        FoodDto foodDto = getFoodById(id);
-        return convertFoodDtoToFoodResponse(foodDto);
-    }
-
-
-    public FoodDetailsResponse createFood(FoodDetailsRequestModel foodDetails) {
+    public FoodDetailsResponse createFood(FoodDetailsRequestModel foodDetails){
         FoodDto foodDto = new FoodDto();
         foodDto.setFoodName(foodDetails.getFoodName());
         foodDto.setFoodCategory(foodDetails.getFoodCategory());
@@ -104,11 +102,32 @@ public class FoodServiceImpl implements FoodService {
 
         FoodDto finalFoodDto = createFood(foodDto);
 
-        return convertFoodDtoToFoodResponse(finalFoodDto);
+        //---------------------------------
+        //Converting finalFoodDto into FoodDetailsResponse
+        //---------------------------------
+
+        FoodDetailsResponse foodDetailsResponse = new FoodDetailsResponse();
+        foodDetailsResponse.setFoodName(finalFoodDto.getFoodName());
+        foodDetailsResponse.setFoodCategory(finalFoodDto.getFoodCategory());
+        foodDetailsResponse.setFoodPrice(finalFoodDto.getFoodPrice());
+        foodDetailsResponse.setFoodId(finalFoodDto.getFoodId());
+
+        return foodDetailsResponse;
     }
 
+    public FoodDetailsResponse get_Food(String id) throws Exception {
+        FoodDto foodDto = getFoodById(id);
 
-    public FoodDetailsResponse updateFood(String id, FoodDetailsRequestModel foodDetails) throws Exception{
+        FoodDetailsResponse foodDetailsResponse = new FoodDetailsResponse();
+        foodDetailsResponse.setFoodId(foodDto.getFoodId());
+        foodDetailsResponse.setFoodPrice(foodDto.getFoodPrice());
+        foodDetailsResponse.setFoodCategory(foodDto.getFoodCategory());
+        foodDetailsResponse.setFoodName(foodDto.getFoodName());
+
+        return foodDetailsResponse;
+    }
+
+    public FoodDetailsResponse updateFood(String id, FoodDetailsRequestModel foodDetails) throws Exception {
         FoodDto foodDto = new FoodDto();
         foodDto.setFoodName(foodDetails.getFoodName());
         foodDto.setFoodCategory(foodDetails.getFoodCategory());
@@ -116,10 +135,20 @@ public class FoodServiceImpl implements FoodService {
 
         FoodDto finalFoodDto = updateFoodDetails(id,foodDto);
 
-        return convertFoodDtoToFoodResponse(finalFoodDto);
+        //--------------------------------
+        //Converting finalOrderDto into OrderDetailsResponse
+        //--------------------------------
+
+        FoodDetailsResponse foodDetailsResponse = new FoodDetailsResponse();
+        foodDetailsResponse.setFoodName(finalFoodDto.getFoodName());
+        foodDetailsResponse.setFoodId(finalFoodDto.getFoodId());
+        foodDetailsResponse.setFoodPrice(finalFoodDto.getFoodPrice());
+        foodDetailsResponse.setFoodCategory(finalFoodDto.getFoodCategory());
+
+        return foodDetailsResponse;
     }
 
-    public OperationStatusModel deleteFood(String id) throws Exception{
+    public OperationStatusModel deleteFood(String id) throws Exception {
         OperationStatusModel operationStatusModel = new OperationStatusModel();
         operationStatusModel.setOperationName(RequestOperationName.DELETE.toString());
         try{
@@ -133,24 +162,27 @@ public class FoodServiceImpl implements FoodService {
         return operationStatusModel;
     }
 
-    @GetMapping()
-    public List<FoodDetailsResponse> get_Foods() {
+    public List<FoodDetailsResponse> get_Foods(){
         List<FoodDto> foodDtoList = getFoods();
         List<FoodDetailsResponse> foodDetailsResponseList = new ArrayList<>();
-        for (FoodDto foodDto: foodDtoList) {
-            foodDetailsResponseList.add(convertFoodDtoToFoodResponse(foodDto));
+        for(FoodDto f : foodDtoList){
+            FoodDetailsResponse foodDetailsResponse = new FoodDetailsResponse();
+            foodDetailsResponse.setFoodId(f.getFoodId());
+            foodDetailsResponse.setFoodPrice(f.getFoodPrice());
+            foodDetailsResponse.setFoodCategory(f.getFoodCategory());
+            foodDetailsResponse.setFoodName(f.getFoodName());
+            foodDetailsResponseList.add(foodDetailsResponse);
         }
-
         return foodDetailsResponseList;
     }
 
-    public FoodDetailsResponse convertFoodDtoToFoodResponse(FoodDto foodDto) {
-        FoodDetailsResponse foodDetailsResponse = new FoodDetailsResponse();
-        foodDetailsResponse.setFoodId(foodDto.getFoodId());
-        foodDetailsResponse.setFoodPrice(foodDto.getFoodPrice());
-        foodDetailsResponse.setFoodCategory(foodDto.getFoodCategory());
-        foodDetailsResponse.setFoodName(foodDto.getFoodName());
+    static String usingRandomUUID() {
 
-        return foodDetailsResponse;
+        UUID randomUUID = UUID.randomUUID();
+
+        return randomUUID.toString().replaceAll("_", "");
+
     }
+
+
 }
