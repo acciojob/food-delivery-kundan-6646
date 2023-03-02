@@ -3,6 +3,7 @@ package com.driver.ui.controller;
 import java.util.List;
 
 import com.driver.model.request.OrderDetailsRequestModel;
+import com.driver.model.request.OrderDetailsRequestModel;
 import com.driver.model.response.OperationStatusModel;
 import com.driver.model.response.OrderDetailsResponse;
 import com.driver.service.impl.OrderServiceImpl;
@@ -19,32 +20,30 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/orders")
 public class OrderController {
-
 	@Autowired
-	OrderServiceImpl orderService;
-
+	OrderServiceImpl orderServiceImpl;
 	@GetMapping(path="/{id}")
 	public OrderDetailsResponse getOrder(@PathVariable String id) throws Exception{
-		return orderService.getOrderById(id);
+		return orderServiceImpl.getOrder(id);
 	}
-	
+
 	@PostMapping()
 	public OrderDetailsResponse createOrder(@RequestBody OrderDetailsRequestModel order) {
-		return orderService.createOrder(order);
+		return orderServiceImpl.createOrder(order);
 	}
-		
+
 	@PutMapping(path="/{id}")
 	public OrderDetailsResponse updateOrder(@PathVariable String id, @RequestBody OrderDetailsRequestModel order) throws Exception{
-		return orderService.updateOrderDetails(id, order);
+		return orderServiceImpl.updateOrder(id,order);
 	}
-	
+
 	@DeleteMapping(path = "/{id}")
 	public OperationStatusModel deleteOrder(@PathVariable String id) throws Exception {
-		return orderService.deleteOrder(id);
+		return orderServiceImpl.delete_Order(id);
 	}
-	
+
 	@GetMapping()
 	public List<OrderDetailsResponse> getOrders() {
-		return orderService.getOrders();
+		return orderServiceImpl.get_Orders();
 	}
 }
